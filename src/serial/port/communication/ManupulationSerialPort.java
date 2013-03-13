@@ -21,6 +21,7 @@ public class ManupulationSerialPort implements Runnable, SerialPortEventListener
     private Thread thread;
 
     /**
+     * Write port
      *
      * @param outputStreamPort
      * @param commandToPort
@@ -38,12 +39,13 @@ public class ManupulationSerialPort implements Runnable, SerialPortEventListener
     }
 
     /**
+     * Reat port
      *
      * @param inputStreamPort
      * @return
      */
     public String readPort(InputStream inputStreamPort) {
-        StringBuffer message = new StringBuffer();
+        StringBuilder message = new StringBuilder();
         try {
             while (inputStreamPort.read() != -1) {
                 if ('\r' == (char) inputStreamPort.read()) {
@@ -55,15 +57,16 @@ public class ManupulationSerialPort implements Runnable, SerialPortEventListener
         } catch (IOException ex) {
             exceptionMessageConsole(ex);
         }
-        return message != null ? message.toString() : "";
+        return message.toString();
     }
 
     /**
+     * Get InputStream port
      *
      * @param serialPort
      * @return
      */
-    public InputStream getInputPort(SerialPort serialPort) {
+    public InputStream getInputStreamPort(SerialPort serialPort) {
         try {
             serialPort.addEventListener(this);
             serialPort.notifyOnDataAvailable(true);
@@ -81,11 +84,12 @@ public class ManupulationSerialPort implements Runnable, SerialPortEventListener
     }
 
     /**
+     * Get OutputStream port
      *
      * @param serialPort
      * @return
      */
-    public OutputStream getOutputPort(SerialPort serialPort) {
+    public OutputStream getOutputStreamPort(SerialPort serialPort) {
         try {
             return serialPort.getOutputStream();
         } catch (IOException ex) {
@@ -95,11 +99,12 @@ public class ManupulationSerialPort implements Runnable, SerialPortEventListener
     }
 
     /**
+     * Get CommPortIdentifier by port name
      *
      * @param portName
      * @return
      */
-    public CommPortIdentifier getPortId(String portName) {
+    public CommPortIdentifier getPortIdByPortName(String portName) {
         try {
             CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(portName);
             return portIdentifier;
@@ -110,17 +115,23 @@ public class ManupulationSerialPort implements Runnable, SerialPortEventListener
     }
 
     /**
+     * Open port
      *
      * @param commPortIdentifier
      * @param baurate
      * @param timeout
+     * @param dataBits
+     * @param stopBits
+     * @param parity
+     * @param flowControlMode
      * @return
      */
-    public SerialPort openPort(CommPortIdentifier commPortIdentifier, int baurate, int timeout) {
+    public SerialPort openPort(CommPortIdentifier commPortIdentifier, int baurate, int timeout,
+            int dataBits, int stopBits, int parity, int flowControlMode) {
         try {
             SerialPort serialPort = (SerialPort) commPortIdentifier.open(this.getClass().getName(), timeout);
-            serialPort.setSerialPortParams(baurate, serialPort.DATABITS_8, serialPort.STOPBITS_1, serialPort.PARITY_NONE);
-            serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
+            serialPort.setSerialPortParams(baurate, dataBits, stopBits, parity);
+            serialPort.setFlowControlMode(flowControlMode);
             return serialPort;
         } catch (PortInUseException ex) {
             exceptionMessageConsole(ex);
@@ -132,14 +143,28 @@ public class ManupulationSerialPort implements Runnable, SerialPortEventListener
     }
 
     /**
-     *
+     * Close port:
+     * Close InputStream, OutputStream and SerialPort
      * @param serialPort
-     * @return
+     * @param inputStream
+     * @param outputStream
+     * @return 
      */
-    public boolean closePort(SerialPort serialPort) {
+    public boolean closePort(SerialPort serialPort, InputStream inputStream, OutputStream outputStream) {
         try {
-            serialPort.close();
+            if (inputStream != null) {
+                inputStream.close();
+            }
+            if (outputStream != null) {
+                outputStream.close();
+            }
+            if (serialPort != null) {
+                serialPort.close();
+            }
             return true;
+        } catch (IOException e) {
+            exceptionMessageConsole(e);
+            return false;
         } catch (Exception e) {
             exceptionMessageConsole(e);
             return false;

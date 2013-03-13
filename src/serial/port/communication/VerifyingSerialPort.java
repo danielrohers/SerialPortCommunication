@@ -1,6 +1,5 @@
 package serial.port.communication;
 
-
 import gnu.io.CommPortIdentifier;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -12,6 +11,11 @@ import java.util.List;
  */
 public class VerifyingSerialPort {
 
+    /**
+     * List all ports
+     *
+     * @return
+     */
     public List<String> listPorts() {
         Enumeration portList = CommPortIdentifier.getPortIdentifiers();
         List<String> listPort = new ArrayList<String>();
@@ -22,15 +26,18 @@ public class VerifyingSerialPort {
         return listPort;
     }
 
+    /**
+     * Checking existence of the door
+     *
+     * @param port
+     * @return
+     */
     public boolean existPort(String port) {
-        boolean result = false;
-        if (port != null) {
-            for (String ports : listPorts()) {
-                if (port.equals(ports)) {
-                    return true;
-                }
+        if (port != null && !port.equals("") && !port.trim().equals("")) {
+            if (new ManupulationSerialPort().getPortIdByPortName(port) != null) {
+                return true;
             }
         }
-        return result;
+        return false;
     }
 }
