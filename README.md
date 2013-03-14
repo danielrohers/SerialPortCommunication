@@ -5,6 +5,7 @@ This project was created for example communication simple serial port.
 ## Technologies
 
 * [RXTX](http://rxtx.qbang.org/wiki/index.php/Main_Page/)
+* [JSSC] (https://code.google.com/p/java-simple-serial-connector/)
 * [Netbeans](http://netbeans.org/)
 
 ## Configurations

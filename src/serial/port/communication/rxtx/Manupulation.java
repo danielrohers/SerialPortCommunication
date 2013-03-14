@@ -1,4 +1,4 @@
-package serial.port.communication;
+package serial.port.communication.rxtx;
 
 import gnu.io.CommPortIdentifier;
 import gnu.io.NoSuchPortException;
@@ -10,15 +10,49 @@ import gnu.io.UnsupportedCommOperationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.TooManyListenersException;
+import serial.port.communication.useful.Useful;
 
 /**
  *
  * @author Daniel Röhers Moura
  */
-public class ManupulationSerialPort implements Runnable, SerialPortEventListener {
+public class Manupulation implements Runnable, SerialPortEventListener {
 
     private Thread thread;
+    
+    /**
+     * List all ports
+     *
+     * @return
+     */
+    public List<String> listPorts() {
+        Enumeration portList = CommPortIdentifier.getPortIdentifiers();
+        List<String> listPort = new ArrayList<String>();
+        while (portList.hasMoreElements()) {
+            CommPortIdentifier commPortIdentifier = (CommPortIdentifier) portList.nextElement();
+            listPort.add(commPortIdentifier.getName());
+        }
+        return listPort;
+    }
+
+    /**
+     * Checking existence of the door
+     *
+     * @param port
+     * @return
+     */
+    public boolean existPort(String port) {
+        if (port != null && !port.equals("") && !port.trim().equals("")) {
+            if (getPortIdByPortName(port) != null) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * Write port
@@ -32,14 +66,14 @@ public class ManupulationSerialPort implements Runnable, SerialPortEventListener
             Thread.sleep(100);
             outputStreamPort.flush();
         } catch (IOException ex) {
-            exceptionMessageConsole(ex);
+            Useful.exceptionMessageConsole(ex);
         } catch (InterruptedException ex) {
-            exceptionMessageConsole(ex);
+            Useful.exceptionMessageConsole(ex);
         }
     }
 
     /**
-     * Reat port
+     * Read port
      *
      * @param inputStreamPort
      * @return
@@ -55,7 +89,7 @@ public class ManupulationSerialPort implements Runnable, SerialPortEventListener
                 }
             }
         } catch (IOException ex) {
-            exceptionMessageConsole(ex);
+            Useful.exceptionMessageConsole(ex);
         }
         return message.toString();
     }
@@ -75,10 +109,10 @@ public class ManupulationSerialPort implements Runnable, SerialPortEventListener
             run();
             return serialPort.getInputStream();
         } catch (IOException ex) {
-            exceptionMessageConsole(ex);
+            Useful.exceptionMessageConsole(ex);
             return null;
         } catch (TooManyListenersException ex) {
-            exceptionMessageConsole(ex);
+            Useful.exceptionMessageConsole(ex);
             return null;
         }
     }
@@ -93,7 +127,7 @@ public class ManupulationSerialPort implements Runnable, SerialPortEventListener
         try {
             return serialPort.getOutputStream();
         } catch (IOException ex) {
-            exceptionMessageConsole(ex);
+            Useful.exceptionMessageConsole(ex);
             return null;
         }
     }
@@ -109,7 +143,7 @@ public class ManupulationSerialPort implements Runnable, SerialPortEventListener
             CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(portName);
             return portIdentifier;
         } catch (NoSuchPortException e) {
-            exceptionMessageConsole(e);
+            Useful.exceptionMessageConsole(e);
             return null;
         }
     }
@@ -134,10 +168,10 @@ public class ManupulationSerialPort implements Runnable, SerialPortEventListener
             serialPort.setFlowControlMode(flowControlMode);
             return serialPort;
         } catch (PortInUseException ex) {
-            exceptionMessageConsole(ex);
+            Useful.exceptionMessageConsole(ex);
             return null;
         } catch (UnsupportedCommOperationException ex) {
-            exceptionMessageConsole(ex);
+            Useful.exceptionMessageConsole(ex);
             return null;
         }
     }
@@ -163,22 +197,12 @@ public class ManupulationSerialPort implements Runnable, SerialPortEventListener
             }
             return true;
         } catch (IOException e) {
-            exceptionMessageConsole(e);
+            Useful.exceptionMessageConsole(e);
             return false;
         } catch (Exception e) {
-            exceptionMessageConsole(e);
+            Useful.exceptionMessageConsole(e);
             return false;
         }
-    }
-
-    /**
-     *
-     * @param exception
-     */
-    private static void exceptionMessageConsole(Exception exception) {
-        System.out.println("Message: " + exception.getMessage());
-        System.out.println("Cause: " + exception.getCause());
-        exception.printStackTrace();
     }
 
     @Override
@@ -190,7 +214,7 @@ public class ManupulationSerialPort implements Runnable, SerialPortEventListener
         try {
             Thread.sleep(10);
         } catch (InterruptedException ex) {
-            exceptionMessageConsole(ex);
+            Useful.exceptionMessageConsole(ex);
         }
     }
 }
